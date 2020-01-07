@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="jarfiles/commons-math3-3.6.1-tools.jar"/>
+	<classpathentry kind="lib" path="jarfiles/commons-math3-3.6.1.jar"/>
+	<classpathentry kind="lib" path="jarfiles/jcommon-1.0.23.jar"/>
+	<classpathentry kind="lib" path="jarfiles/jfreechart-1.0.19-experimental.jar"/>
+	<classpathentry kind="lib" path="jarfiles/jfreechart-1.0.19.jar"/>
+	<classpathentry kind="lib" path="jarfiles/junit-4.11.jar"/>
+	<classpathentry kind="lib" path="jarfiles/netcdfAll-4.6.jar"/>
+	<classpathentry kind="lib" path="jarfiles/slf4j-api-1.7.6.jar"/>
+	<classpathentry kind="lib" path="jarfiles/slf4j-simple-1.7.7.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
