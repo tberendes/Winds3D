@@ -483,7 +483,7 @@ public class Winds3DGeoMatch {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			if (winds==null) {
-				System.out.println("No matching winds data, skipping file " + windsInputFile);
+				System.out.println("ERROR No matching winds data or VN file, skipping file " + windsInputFile + " " + vnInputFile);
 			}
 			else
 				e.printStackTrace();
