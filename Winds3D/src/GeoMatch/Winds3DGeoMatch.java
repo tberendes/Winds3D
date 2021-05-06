@@ -63,7 +63,7 @@ public class Winds3DGeoMatch {
 		this.swath=swath;
 	}
 	
-	void processFiles()
+	void processFiles(boolean overwriteFlag)
 	{
 		NetcdfFileWriter mFptr=null;
 		String gpmTime=null;
@@ -81,6 +81,14 @@ public class Winds3DGeoMatch {
 		Dimension fpdim=null;
 		Dimension elevationAngle=null;
 		Winds3DData winds=null;
+		
+		// skip processing if output VN file already exists unless overwrite flag is true
+		File vnfile = new File (vnOutputFile);
+		if (!overwriteFlag&&vnfile.exists()) {
+			System.out.println("Output file "+ vnOutputFile+" already exists (overwrite=false), skipping...");
+			return;
+		}
+
 		try {
 			temp = new TempFile(vnInputFile);
 			filename = temp.getTempFilename();
@@ -517,9 +525,10 @@ public class Winds3DGeoMatch {
 		String vnOutputFile;
 		String windsInputFile;
 		String swath="";
+		boolean overwriteFlag=false;
 		
 		if (args.length<3) {
-			System.out.println("Usage:  java -jar WindsGeoMatch input_VN_input_file 3Dwinds_input_file output_directory");
+			System.out.println("Usage:  java -jar WindsGeoMatch input_VN_input_file 3Dwinds_input_file output_directory <overwrite=true/false> <swath=NS/MS/HS/FS>");
 			System.out.println("  Matches 3D winds data with GPM VN matchup files and creates a new VN output file with addition of 3D winds");
 			System.exit(-1);
 		}
@@ -528,12 +537,37 @@ public class Winds3DGeoMatch {
 		File inFile = new File (vnInputFile);
 		String inputFileName = inFile.getName();
 		vnOutputFile = args[2]+ File.separator +inputFileName;
-		if (args.length==4) {
-			swath="_"+args[3];
+		
+		if (args.length >= 4) {
+			// check for overwrite=true/false and tmp=/tmpdir
+			for (int ind1=3;ind1<args.length;ind1++) {
+				if (args[ind1].toLowerCase().contains("swath=")) {
+					swath=args[ind1].split("=")[1];
+					System.out.println("setting swath to "+swath);
+					swath="_"+swath;
+					
+				}
+				if (args[ind1].toLowerCase().contains("overwrite=")) {
+					if (args[ind1].split("=")[1].equalsIgnoreCase("true")) {
+						overwriteFlag = true;							
+						System.out.println("overwriting existing output files ");
+					}
+					else {
+						overwriteFlag = false;
+						System.out.println("existing output files will be skipped ");
+					}
+				}
+			}
 		}
 		
+		
+		
+//		if (args.length==4) {
+//			swath="_"+args[3];
+//		}
+		
 		Winds3DGeoMatch windsGeo = new Winds3DGeoMatch(vnInputFile,windsInputFile,vnOutputFile, swath);
-		windsGeo.processFiles();
+		windsGeo.processFiles(overwriteFlag);
 		
 	}
 }
