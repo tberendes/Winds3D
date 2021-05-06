@@ -167,7 +167,7 @@ public class Winds3DData {
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 			throw new IOException(e.getMessage());			
 		}
 
