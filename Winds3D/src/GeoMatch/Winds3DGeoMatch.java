@@ -199,18 +199,38 @@ public class Winds3DGeoMatch {
 			winds = new Winds3DData(windsInputFile);
 			
 			// output test winds image
-			BufferedImage windsImage = winds.makeWindsImage(winds.getU(), 1, (float)winds.getuValidMin(), (float)winds.getuValidMax(),true);
+			BufferedImage windsImage = winds.makeWindsImage(winds.getU(), 1, (float)winds.getuValidMin(), (float)winds.getuValidMax(),true,false);
 			FileOutputStream windsfout = new FileOutputStream(vnOutputFile + ".winds_U.col" + ".png" );
 		    ImageIO.write(windsImage, "png", windsfout);
 			windsfout.close();
 			
-			windsImage = winds.makeWindsImage(winds.getV(), 1, (float)winds.getvValidMin(), (float)winds.getvValidMax(),true);
+			windsImage = winds.makeWindsImage(winds.getV(), 1, (float)winds.getvValidMin(), (float)winds.getvValidMax(),true,false);
 			windsfout = new FileOutputStream(vnOutputFile + ".winds_V.col" + ".png" );
 		    ImageIO.write(windsImage, "png", windsfout);
 			windsfout.close();
 			
-			windsImage = winds.makeWindsImage(winds.getW(), 1, (float)winds.getwValidMin(), (float)winds.getwValidMax(),true);
+			windsImage = winds.makeWindsImage(winds.getW(), 1, (float)winds.getwValidMin(), (float)winds.getwValidMax(),true,false);
 			windsfout = new FileOutputStream(vnOutputFile + ".winds_W.col" + ".png" );
+		    ImageIO.write(windsImage, "png", windsfout);
+			windsfout.close();
+			
+			windsImage = winds.makeWindsImage(winds.getdeltaT(), 1, (float)winds.getdeltaTValidMin(), (float)winds.getdeltaTValidMax(),true,false);
+			windsfout = new FileOutputStream(vnOutputFile + ".winds_deltaT.col" + ".png" );
+		    ImageIO.write(windsImage, "png", windsfout);
+			windsfout.close();
+			
+//			// do absolute value of deltaT, set min to 0, max to validMax
+//			Array deltaTabsArr = winds.getdeltaT().copy();
+//			Index index = deltaTabsArr.getIndex();
+//			int [] imgShape = deltaTabsArr.getShape();
+//			for (int ind1=0;ind1<imgShape[0];ind1++) {
+//				for (int ind2=0;ind2<imgShape[1];ind2++) {
+//					Index imgInd = deltaTabsArr.getIndex().set(ind1, ind2);
+//					deltaTabsArr.setDouble(imgInd, Math.abs(deltaTabsArr.getDouble(imgInd)));
+//				}
+//			}
+			windsImage = winds.makeWindsImage(winds.getdeltaT(), 1, (float)winds.getdeltaTValidMin(), (float)winds.getdeltaTValidMax(),true,true);
+			windsfout = new FileOutputStream(vnOutputFile + ".winds_deltaTabs.col" + ".png" );
 		    ImageIO.write(windsImage, "png", windsfout);
 			windsfout.close();
 			
@@ -309,6 +329,55 @@ public class Winds3DGeoMatch {
 		    windsWVarMin.addAttribute(new Attribute("valid_min", (float)-106.64999771118164));
 		    windsWVarMin.addAttribute(new Attribute("valid_max", (float)106.64999771118164));
 		    
+		    Variable windsdeltaTVar = mFptr.addVariable(null, "GR_deltaT"+swath, DataType.FLOAT, dims);
+		    windsdeltaTVar.addAttribute(new Attribute("units", "s"));
+		    windsdeltaTVar.addAttribute(new Attribute("long_name", "Sample_Time_Difference_With_Respect_to_Radar median"));
+		    windsdeltaTVar.addAttribute(new Attribute("_FillValue", (float)-888.0));
+		    windsdeltaTVar.addAttribute(new Attribute("valid_min", (float)-675.0));
+		    windsdeltaTVar.addAttribute(new Attribute("valid_max", (float)675.0));
+		    Variable windsdeltaTVarStdDev = mFptr.addVariable(null, "GR_deltaT_StdDev"+swath, DataType.FLOAT, dims);
+		    windsdeltaTVarStdDev.addAttribute(new Attribute("units", "s"));
+		    windsdeltaTVarStdDev.addAttribute(new Attribute("long_name", "Sample_Time_Difference_With_Respect_to_Radar Std Dev"));
+		    windsdeltaTVarStdDev.addAttribute(new Attribute("_FillValue", (float)-888.0));
+		    windsdeltaTVarStdDev.addAttribute(new Attribute("valid_min", (float)-675.0));
+		    windsdeltaTVarStdDev.addAttribute(new Attribute("valid_max", (float)675.0));
+		    Variable windsdeltaTVarMax = mFptr.addVariable(null, "GR_deltaT_Max"+swath, DataType.FLOAT, dims);
+		    windsdeltaTVarMax.addAttribute(new Attribute("units", "s"));
+		    windsdeltaTVarMax.addAttribute(new Attribute("long_name", "Sample_Time_Difference_With_Respect_to_Radar max"));
+		    windsdeltaTVarMax.addAttribute(new Attribute("_FillValue", (float)-888.0));
+		    windsdeltaTVarMax.addAttribute(new Attribute("valid_min", (float)-675.0));
+		    windsdeltaTVarMax.addAttribute(new Attribute("valid_max", (float)675.0));
+		    Variable windsdeltaTVarMin = mFptr.addVariable(null, "GR_deltaT_Min"+swath, DataType.FLOAT, dims);
+		    windsdeltaTVarMin.addAttribute(new Attribute("units", "s"));
+		    windsdeltaTVarMin.addAttribute(new Attribute("long_name", "Sample_Time_Difference_With_Respect_to_Radar min"));
+		    windsdeltaTVarMin.addAttribute(new Attribute("_FillValue", (float)-888.0));
+		    windsdeltaTVarMin.addAttribute(new Attribute("valid_min", (float)-675.0));
+		    windsdeltaTVarMin.addAttribute(new Attribute("valid_max", (float)675.0));
+		    
+		    Variable windsdeltaTabsVar = mFptr.addVariable(null, "GR_deltaT_abs"+swath, DataType.FLOAT, dims);
+		    windsdeltaTabsVar.addAttribute(new Attribute("units", "s"));
+		    windsdeltaTabsVar.addAttribute(new Attribute("long_name", "Absolute value Sample_Time_Difference_With_Respect_to_Radar mean"));
+		    windsdeltaTabsVar.addAttribute(new Attribute("_FillValue", (float)-888.0));
+		    windsdeltaTabsVar.addAttribute(new Attribute("valid_min", (float)0.0));
+		    windsdeltaTabsVar.addAttribute(new Attribute("valid_max", (float)675.0));
+		    Variable windsdeltaTabsVarStdDev = mFptr.addVariable(null, "GR_deltaT_abs_StdDev"+swath, DataType.FLOAT, dims);
+		    windsdeltaTabsVarStdDev.addAttribute(new Attribute("units", "s"));
+		    windsdeltaTabsVarStdDev.addAttribute(new Attribute("long_name", "Absolute value Sample_Time_Difference_With_Respect_to_Radar Std Dev"));
+		    windsdeltaTabsVarStdDev.addAttribute(new Attribute("_FillValue", (float)-888.0));
+		    windsdeltaTabsVarStdDev.addAttribute(new Attribute("valid_min", (float)0.0));
+		    windsdeltaTabsVarStdDev.addAttribute(new Attribute("valid_max", (float)675.0));
+		    Variable windsdeltaTabsVarMax = mFptr.addVariable(null, "GR_deltaT_abs_Max"+swath, DataType.FLOAT, dims);
+		    windsdeltaTabsVarMax.addAttribute(new Attribute("units", "s"));
+		    windsdeltaTabsVarMax.addAttribute(new Attribute("long_name", "Absolute value Sample_Time_Difference_With_Respect_to_Radar max"));
+		    windsdeltaTabsVarMax.addAttribute(new Attribute("_FillValue", (float)-888.0));
+		    windsdeltaTabsVarMax.addAttribute(new Attribute("valid_min", (float)0.0));
+		    windsdeltaTabsVarMax.addAttribute(new Attribute("valid_max", (float)675.0));
+		    Variable windsdeltaTabsVarMin = mFptr.addVariable(null, "GR_deltaT_abs_Min"+swath, DataType.FLOAT, dims);
+		    windsdeltaTabsVarMin.addAttribute(new Attribute("units", "s"));
+		    windsdeltaTabsVarMin.addAttribute(new Attribute("long_name", "Absolute value Sample_Time_Difference_With_Respect_to_Radar min"));
+		    windsdeltaTabsVarMin.addAttribute(new Attribute("_FillValue", (float)-888.0));
+		    windsdeltaTabsVarMin.addAttribute(new Attribute("valid_min", (float)0.0));
+		    windsdeltaTabsVarMin.addAttribute(new Attribute("valid_max", (float)675.0));
 		    
 	    	// leave define mode 
 			mFptr.flush();
@@ -332,6 +401,16 @@ public class Winds3DGeoMatch {
 			ArrayFloat windsWArrStdDev = new ArrayFloat.D2(shape[0], shape[1]);
 			ArrayFloat windsWArrMax = new ArrayFloat.D2(shape[0], shape[1]);
 			ArrayFloat windsWArrMin = new ArrayFloat.D2(shape[0], shape[1]);
+
+			ArrayFloat windsdeltaTArr = new ArrayFloat.D2(shape[0], shape[1]);
+			ArrayFloat windsdeltaTArrStdDev = new ArrayFloat.D2(shape[0], shape[1]);
+			ArrayFloat windsdeltaTArrMax = new ArrayFloat.D2(shape[0], shape[1]);
+			ArrayFloat windsdeltaTArrMin = new ArrayFloat.D2(shape[0], shape[1]);
+
+			ArrayFloat windsdeltaTabsArr = new ArrayFloat.D2(shape[0], shape[1]);
+			ArrayFloat windsdeltaTabsArrStdDev = new ArrayFloat.D2(shape[0], shape[1]);
+			ArrayFloat windsdeltaTabsArrMax = new ArrayFloat.D2(shape[0], shape[1]);
+			ArrayFloat windsdeltaTabsArrMin = new ArrayFloat.D2(shape[0], shape[1]);
 
 			// loop through elevations and DPR footprints
 			// accumulate wind statistics for GR to GPM volume matches using winds 
@@ -363,6 +442,14 @@ public class Winds3DGeoMatch {
 						windsWArrStdDev.setFloat(windsWArr.getIndex().set(elev, ind1), -888.0f);
 						windsWArrMax.setFloat(windsWArr.getIndex().set(elev, ind1), -888.0f);
 						windsWArrMin.setFloat(windsWArr.getIndex().set(elev, ind1), -888.0f);
+						windsdeltaTArr.setFloat(windsdeltaTArr.getIndex().set(elev, ind1), -888.0f);
+						windsdeltaTArrStdDev.setFloat(windsdeltaTArr.getIndex().set(elev, ind1), -888.0f);
+						windsdeltaTArrMax.setFloat(windsdeltaTArr.getIndex().set(elev, ind1), -888.0f);
+						windsdeltaTArrMin.setFloat(windsdeltaTArr.getIndex().set(elev, ind1), -888.0f);
+						windsdeltaTabsArr.setFloat(windsdeltaTabsArr.getIndex().set(elev, ind1), -888.0f);
+						windsdeltaTabsArrStdDev.setFloat(windsdeltaTabsArr.getIndex().set(elev, ind1), -888.0f);
+						windsdeltaTabsArrMax.setFloat(windsdeltaTabsArr.getIndex().set(elev, ind1), -888.0f);
+						windsdeltaTabsArrMin.setFloat(windsdeltaTabsArr.getIndex().set(elev, ind1), -888.0f);
 						continue;
 					}
 
@@ -394,7 +481,7 @@ public class Winds3DGeoMatch {
 //					System.out.println("valid min " + winds.getuValidMin() + " max "+winds.getuValidMax());
 					
 //					DescriptiveStatistics uStats = winds.getStats(winds.getU(), xmin, xmax, ymin, ymax, elevMin, elevMax, winds.getuValidMin(), winds.getuValidMax());
-					DescriptiveStatistics uStats = winds.getStats(winds.getU(), latitude.getFloat(latitude.getIndex().set(elev,ind1)), longitude.getFloat(longitude.getIndex().set(elev,ind1)), DPR_FOOTPRINT/2.0f, elevMin, elevMax, winds.getuValidMin(), winds.getuValidMax());
+					DescriptiveStatistics uStats = winds.getStats(winds.getU(), latitude.getFloat(latitude.getIndex().set(elev,ind1)), longitude.getFloat(longitude.getIndex().set(elev,ind1)), DPR_FOOTPRINT/2.0f, elevMin, elevMax, winds.getuValidMin(), winds.getuValidMax(),false);
 					if (uStats!=null) {
 						windsUArr.setFloat(windsUArr.getIndex().set(elev, ind1), (float)uStats.getMean());
 						windsUArrStdDev.setFloat(windsUArr.getIndex().set(elev, ind1), (float)uStats.getStandardDeviation());
@@ -413,7 +500,7 @@ public class Winds3DGeoMatch {
 //						System.out.println("U values missing ");
 					}
 					
-					DescriptiveStatistics vStats = winds.getStats(winds.getV(), latitude.getFloat(latitude.getIndex().set(elev,ind1)), longitude.getFloat(longitude.getIndex().set(elev,ind1)), DPR_FOOTPRINT/2.0f, elevMin, elevMax, winds.getvValidMin(), winds.getvValidMax());
+					DescriptiveStatistics vStats = winds.getStats(winds.getV(), latitude.getFloat(latitude.getIndex().set(elev,ind1)), longitude.getFloat(longitude.getIndex().set(elev,ind1)), DPR_FOOTPRINT/2.0f, elevMin, elevMax, winds.getvValidMin(), winds.getvValidMax(),false);
 					if (vStats!=null) {
 						windsVArr.setFloat(windsVArr.getIndex().set(elev, ind1), (float)vStats.getMean());
 						windsVArrStdDev.setFloat(windsVArr.getIndex().set(elev, ind1), (float)vStats.getStandardDeviation());
@@ -427,7 +514,7 @@ public class Winds3DGeoMatch {
 						windsVArrMin.setFloat(windsVArr.getIndex().set(elev, ind1), -888.0f);
 					}
 					
-					DescriptiveStatistics wStats = winds.getStats(winds.getW(), latitude.getFloat(latitude.getIndex().set(elev,ind1)), longitude.getFloat(longitude.getIndex().set(elev,ind1)), DPR_FOOTPRINT/2.0f, elevMin, elevMax, winds.getwValidMin(), winds.getwValidMax());
+					DescriptiveStatistics wStats = winds.getStats(winds.getW(), latitude.getFloat(latitude.getIndex().set(elev,ind1)), longitude.getFloat(longitude.getIndex().set(elev,ind1)), DPR_FOOTPRINT/2.0f, elevMin, elevMax, winds.getwValidMin(), winds.getwValidMax(),false);
 					if (wStats!=null) {
 						windsWArr.setFloat(windsWArr.getIndex().set(elev, ind1), (float)wStats.getMean());
 						windsWArrStdDev.setFloat(windsWArr.getIndex().set(elev, ind1), (float)wStats.getStandardDeviation());
@@ -440,6 +527,36 @@ public class Winds3DGeoMatch {
 						windsWArrMax.setFloat(windsWArr.getIndex().set(elev, ind1), -888.0f);
 						windsWArrMin.setFloat(windsWArr.getIndex().set(elev, ind1), -888.0f);
 					}			
+					
+					DescriptiveStatistics deltaTStats = winds.getStats(winds.getdeltaT(), latitude.getFloat(latitude.getIndex().set(elev,ind1)), longitude.getFloat(longitude.getIndex().set(elev,ind1)), DPR_FOOTPRINT/2.0f, elevMin, elevMax, winds.getdeltaTValidMin(), winds.getdeltaTValidMax(),false);
+					if (deltaTStats!=null) {
+						windsdeltaTArr.setFloat(windsdeltaTArr.getIndex().set(elev, ind1), (float)deltaTStats.getPercentile(50.0)); // use median for signed deltaT, .getMean() for unsigned
+						windsdeltaTArrStdDev.setFloat(windsdeltaTArr.getIndex().set(elev, ind1), (float)deltaTStats.getStandardDeviation());
+						windsdeltaTArrMax.setFloat(windsdeltaTArr.getIndex().set(elev, ind1), (float)deltaTStats.getMax());
+						windsdeltaTArrMin.setFloat(windsdeltaTArr.getIndex().set(elev, ind1), (float)deltaTStats.getMin());
+					}
+					else {
+						windsdeltaTArr.setFloat(windsdeltaTArr.getIndex().set(elev, ind1), -888.0f);
+						windsdeltaTArrStdDev.setFloat(windsdeltaTArr.getIndex().set(elev, ind1), -888.0f);
+						windsdeltaTArrMax.setFloat(windsdeltaTArr.getIndex().set(elev, ind1), -888.0f);
+						windsdeltaTArrMin.setFloat(windsdeltaTArr.getIndex().set(elev, ind1), -888.0f);
+					}			
+					
+					DescriptiveStatistics deltaTabsStats = winds.getStats(winds.getdeltaT(), latitude.getFloat(latitude.getIndex().set(elev,ind1)), longitude.getFloat(longitude.getIndex().set(elev,ind1)), DPR_FOOTPRINT/2.0f, elevMin, elevMax, winds.getdeltaTValidMin(), winds.getdeltaTValidMax(),true);
+					if (deltaTStats!=null) {
+						windsdeltaTabsArr.setFloat(windsdeltaTabsArr.getIndex().set(elev, ind1), (float)deltaTabsStats.getMean()); // use mean for unsigned (abs) deltaT
+						windsdeltaTabsArrStdDev.setFloat(windsdeltaTabsArr.getIndex().set(elev, ind1), (float)deltaTabsStats.getStandardDeviation());
+						windsdeltaTabsArrMax.setFloat(windsdeltaTabsArr.getIndex().set(elev, ind1), (float)deltaTabsStats.getMax());
+						windsdeltaTabsArrMin.setFloat(windsdeltaTabsArr.getIndex().set(elev, ind1), (float)deltaTabsStats.getMin());
+					}
+					else {
+						windsdeltaTabsArr.setFloat(windsdeltaTabsArr.getIndex().set(elev, ind1), -888.0f);
+						windsdeltaTabsArrStdDev.setFloat(windsdeltaTabsArr.getIndex().set(elev, ind1), -888.0f);
+						windsdeltaTabsArrMax.setFloat(windsdeltaTabsArr.getIndex().set(elev, ind1), -888.0f);
+						windsdeltaTabsArrMin.setFloat(windsdeltaTabsArr.getIndex().set(elev, ind1), -888.0f);
+					}			
+
+					
 					//System.out.println("elev "+elev+" fpdim " + ind1);
 				}
 			}
@@ -480,6 +597,27 @@ public class Winds3DGeoMatch {
 		    ImageIO.write(vnWindsImage, "png", vnWindsfout);
 		    vnWindsfout.close();
 			
+			mFptr.write(windsdeltaTVar, windsdeltaTArr);
+			mFptr.write(windsdeltaTVarStdDev, windsdeltaTArrStdDev);
+			mFptr.write(windsdeltaTVarMax, windsdeltaTArrMax);
+			mFptr.write(windsdeltaTVarMin, windsdeltaTArrMin);
+			
+			vnWindsImage = winds.makeVNImage(windsdeltaTArr, latitude, longitude, 0, (float)DPR_FOOTPRINT/2.0f,(float)winds.getdeltaTValidMin(), (float)winds.getdeltaTValidMax(), true);
+			vnWindsfout = new FileOutputStream(vnOutputFile + ".VN_winds_deltaT.col" + ".png" );
+		    ImageIO.write(vnWindsImage, "png", vnWindsfout);
+		    vnWindsfout.close();
+
+			mFptr.write(windsdeltaTabsVar, windsdeltaTabsArr);
+			mFptr.write(windsdeltaTabsVarStdDev, windsdeltaTabsArrStdDev);
+			mFptr.write(windsdeltaTabsVarMax, windsdeltaTabsArrMax);
+			mFptr.write(windsdeltaTabsVarMin, windsdeltaTabsArrMin);
+			
+			vnWindsImage = winds.makeVNImage(windsdeltaTabsArr, latitude, longitude, 0, (float)DPR_FOOTPRINT/2.0f,(float)winds.getdeltaTValidMin(), (float)winds.getdeltaTValidMax(), true);
+			vnWindsfout = new FileOutputStream(vnOutputFile + ".VN_winds_deltaTabs.col" + ".png" );
+		    ImageIO.write(vnWindsImage, "png", vnWindsfout);
+		    vnWindsfout.close();
+
+		
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			if (winds==null) {

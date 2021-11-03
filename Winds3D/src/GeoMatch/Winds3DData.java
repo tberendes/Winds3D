@@ -38,11 +38,11 @@ import Util.colormap;
 
 public class Winds3DData {
 
-	Array x,y,z,u,v,w;
+	Array x,y,z,u,v,w,deltaT;
 	Dimension timeDim,xDim,yDim,zDim;
 	float originLat, originLon, originAlt;
-	double uValidMin,uValidMax,vValidMin,vValidMax,wValidMin,wValidMax;
-	double uMissing, vMissing, wMissing;
+	double uValidMin,uValidMax,vValidMin,vValidMax,wValidMin,wValidMax,deltaTValidMin,deltaTValidMax;
+	double uMissing, vMissing, wMissing,deltaTMissing;
 
 	public double getuValidMin() {
 		return uValidMin;
@@ -62,6 +62,12 @@ public class Winds3DData {
 	public double getwValidMax() {
 		return wValidMax;
 	}
+	public double getdeltaTValidMin() {
+		return deltaTValidMin;
+	}
+	public double getdeltaTValidMax() {
+		return deltaTValidMax;
+	}
 	public double getuMissing() {
 		return uMissing;
 	}
@@ -70,6 +76,9 @@ public class Winds3DData {
 	}
 	public double getwMissing() {
 		return wMissing;
+	}
+	public double getdeltaTMissing() {
+		return deltaTMissing;
 	}
 
 	public Array getX() {
@@ -108,6 +117,13 @@ public class Winds3DData {
 	public void setW(Array w) {
 		this.w = w;
 	}
+	public Array getdeltaT() {
+		return deltaT;
+	}
+	public void setdeltaT(Array deltaT) {
+		this.deltaT = deltaT;
+	}
+
 	public Dimension getTimeDim() {
 		return timeDim;
 	}
@@ -262,6 +278,18 @@ public class Winds3DData {
 		wValidMax=attr.getNumericValue().doubleValue();
 		attr = var.findAttribute("missing_value");
 		wMissing=attr.getNumericValue().doubleValue();
+		
+		var = mFptr.findVariable("sample_time_difference");
+		if (var==null) {
+			System.err.println("cannot find variable sample_time_difference");
+			throw new IOException();			
+		}
+		deltaT = var.read();
+		deltaTValidMin=-675.0;
+		deltaTValidMax=675.0;
+		attr = var.findAttribute("_FillValue");
+		deltaTMissing=attr.getNumericValue().doubleValue();
+
 	}
 	static int xytobin(float val)
 	{
@@ -306,7 +334,19 @@ public class Winds3DData {
 		
 		return((float)(w.getDouble(w.getIndex().set(xIndex,yIndex,zIndex))));
 	}
-	public DescriptiveStatistics getStats(Array dataValues,float lat, float lon, float radiusM, float zmin, float zmax, double validMin, double validMax) 
+	public float getdeltaTValue(float xRelCenter, float yRelCenter, float heightMeters)
+	// assumes x and y coordinates are distances relative to center of grid
+	// must convert to lower left corner relative array indices then 
+	// retrieve value
+	{
+		// compute distance from origin and offset into distance indexed array
+		int xIndex=xytobin(xRelCenter);
+		int yIndex=xytobin(yRelCenter);
+		int zIndex=(int)(heightMeters/1000.0f);
+		
+		return((float)(deltaT.getDouble(deltaT.getIndex().set(xIndex,yIndex,zIndex))));
+	}
+	public DescriptiveStatistics getStats(Array dataValues,float lat, float lon, float radiusM, float zmin, float zmax, double validMin, double validMax, boolean absFlag) 
 	{
 		// compute the offsets into the specified subset range of the given data array and compute statistics
 		
@@ -378,6 +418,9 @@ public class Winds3DData {
 						continue;
 //					System.out.println("ind1 " + ind1 + " ind2 " + ind2 + " ind3 "+ ind3);
 					double value = dataValues.getDouble(dataValues.getIndex().set(0,ind1,ind2,ind3));
+					if (absFlag) {
+						value = Math.abs(value);
+					}
 					
 //					System.out.println("value " + value);
 					
@@ -535,7 +578,7 @@ public class Winds3DData {
 				
 		return image;
 	}
-	public BufferedImage makeWindsImage(Array windsData, int zIndex, float validMin, float validMax, boolean colorFlag)
+	public BufferedImage makeWindsImage(Array windsData, int zIndex, float validMin, float validMax, boolean colorFlag, boolean absFlag)
 	/*
 	 * creates grey scale image 0-255 between specified max/min values
 	 */
@@ -558,6 +601,9 @@ public class Winds3DData {
 		for (int ind1=0;ind1<numLines;ind1++){
 			for (int ind2=0;ind2<numPix;ind2++){
 				float value = windsData.getFloat(windsData.getIndex().set(0, zIndex, ind1, ind2));
+				if (absFlag) {
+					value = Math.abs(value);
+				}
 				if (value>=validMin && value<=validMax) {
 					stats.addValue(value);					
 				}
